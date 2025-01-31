@@ -2,11 +2,6 @@
 using GestionDeTareas.Core.Domain.Models;
 using GestionDeTareas.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GestionDeTareas.Infrastructure.Persistence.Repository
 {
@@ -25,6 +20,12 @@ namespace GestionDeTareas.Infrastructure.Persistence.Repository
                                       .Where(predicate));
             
             return query;                         
+        }
+
+        public async Task<bool> ValidateAsync(Func<TaskItem, bool> validate)
+        {
+            var exists = _context.Set<TaskItem>().Any(validate);
+            return exists;
         }
     }
 }

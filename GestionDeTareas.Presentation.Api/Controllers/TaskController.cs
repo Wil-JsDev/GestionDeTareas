@@ -10,6 +10,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
     public class TaskController : ControllerBase
     {
         private readonly ITaskService _taskService;
+
         public TaskController(ITaskService taskService)
         {
             _taskService = taskService;
@@ -18,13 +19,13 @@ namespace GestionDeTareas.Presentation.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] CreateTaskDto createTaskDtos, CancellationToken cancellationToken)
         {
-            var taskDto = await _taskService.CreateAsync(createTaskDtos, cancellationToken);
+            var taskDto = await _taskService.CreateAsync(createTaskDtos, cancellationToken);            
             if (!taskDto.IsSuccess)
             {
                 return BadRequest(taskDto.Error);
             }
             
-            return Ok(taskDto);
+            return Ok(taskDto.Value);
 
         }
 
@@ -37,10 +38,10 @@ namespace GestionDeTareas.Presentation.Api.Controllers
                 return BadRequest(taskItems.Error);
             }
 
-            return Ok(taskItems);
+            return Ok(taskItems.Value);
         }
 
-        [HttpGet("{status}")]
+        [HttpGet("filter/status/{status}")]
         public async Task<IActionResult> FilterByStatusAsync([FromRoute] Status status, CancellationToken cancellationToken)
         {
             var filter = await _taskService.FilterByStatus(status, cancellationToken);
@@ -50,7 +51,19 @@ namespace GestionDeTareas.Presentation.Api.Controllers
                 return BadRequest(filter.Error);
             }
             
-            return Ok(filter);
+            return Ok(filter.Value);
+        }
+
+        [HttpGet("filter/description/{description}")]
+        public async Task<IActionResult> FilterByDescriptionAsync([FromRoute] string description,CancellationToken cancellationToken)
+        {
+            var filter = await _taskService.FilterByDescriptionAsync(description, cancellationToken);
+            if (!filter.IsSuccess)
+            {
+                return BadRequest(filter.Error);
+            }
+
+            return Ok(filter.Value);
         }
 
         [HttpGet("{id}")]
@@ -62,7 +75,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
                 return NotFound(task.Error);
             }
 
-            return Ok(task);
+            return Ok(task.Value);
 
         }
 
@@ -75,7 +88,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
                 return NotFound(task.Error);
             }
 
-            return Ok(task);
+            return Ok(task.Value);
 
         }
 
@@ -88,9 +101,20 @@ namespace GestionDeTareas.Presentation.Api.Controllers
                 return NotFound(task.Error);
             }
 
-            return Ok(task);
+            return Ok(task.Value);
 
         }
 
+        [HttpGet("{id}/days-left")]
+        public async Task<IActionResult> GetCalculateDaysAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+        {
+            var taskDay = await _taskService.CalculateDayLeftAsync(id, cancellationToken);
+            if (!taskDay.IsSuccess)
+            {
+                return NotFound(taskDay.Error);
+            }
+
+            return Ok(taskDay.Value);
+        }
     }
 }

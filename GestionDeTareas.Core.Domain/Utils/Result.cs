@@ -1,10 +1,13 @@
-﻿namespace GestionDeTareas.Core.Domain.Utils
+﻿using System.Text.Json.Serialization;
+
+namespace GestionDeTareas.Core.Domain.Utils
 {
     public class Result
     {
         public bool IsSuccess { get; set; }
 
-        public Error? Error { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public Error? Error { get; }
 
         protected Result()
         {
@@ -18,8 +21,11 @@
             Error = error;
         }
 
+        public static implicit operator Result(Error error) =>
+            new(error);
+
         public static Result Success() =>
-           new();
+            new();
 
         public static Result Failure(Error error) =>
             new(error);
@@ -27,23 +33,26 @@
 
     public sealed class ResultT<TValue> : Result
     {
-        private readonly TValue _value;
+        private readonly TValue? _value;
 
         private ResultT(TValue value) : base()
         {
             _value = value;
         }
 
+        private ResultT(Error error) : base(error)
+        {
+            _value = default;
+        }
+
+        public TValue Value =>
+            IsSuccess ? _value! : throw new InvalidOperationException("Value can not be accessed when IsSuccess is false");
+
         public static implicit operator ResultT<TValue>(Error error) =>
             new(error);
 
         public static implicit operator ResultT<TValue>(TValue value) =>
             new(value);
-
-        private ResultT(Error error) : base(error)
-        {
-            _value = default;
-        }
 
         public static ResultT<TValue> Success(TValue value) =>
             new(value);

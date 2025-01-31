@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GestionDeTareas.Core.Application.DTos;
+using GestionDeTareas.Core.Application.Helper;
 using GestionDeTareas.Core.Application.Interfaces.Repository;
 using GestionDeTareas.Core.Application.Interfaces.Service;
 using GestionDeTareas.Core.Domain.Enum;
@@ -12,10 +13,13 @@ namespace GestionDeTareas.Core.Application.Service
     {
         private readonly ITaskRepository _taskRepository;
         private readonly IMapper _mapper;
-        public TaskService(ITaskRepository taskRepository, IMapper mapper)
+        private readonly TaskHelper _taskHelper;
+
+        public TaskService(ITaskRepository taskRepository, IMapper mapper, TaskHelper taskHelper)
         {
             _taskRepository = taskRepository;
             _mapper = mapper;
+            _taskHelper = taskHelper;
         }
 
         public async Task<ResultT<TaskDtos>> CreateAsync(CreateTaskDto createTaskDto, CancellationToken cancellationToken)
@@ -23,12 +27,27 @@ namespace GestionDeTareas.Core.Application.Service
             var task = _mapper.Map<TaskItem>(createTaskDto);
             if (task != null)
             {
+                var exists = await _taskRepository.ValidateAsync(x => x.Description == task.Description);
+                if (exists)
+                {
+                    return ResultT<TaskDtos>.Failure(Error.Failure("400", "Task description already exists."));
+                }
+
+                var isValid = _taskHelper.Validate(task);
+                if (!isValid)
+                {
+                    return ResultT<TaskDtos>.Failure(Error.Failure("400", "Task is null or description is empty."));
+                }
+
                 await _taskRepository.CreateAsync(task, cancellationToken);
+
+                _taskHelper.SendNotification(task);
+
                 var taskDto = _mapper.Map<TaskDtos>(task); 
                 return ResultT<TaskDtos>.Success(taskDto);
             }
 
-            return ResultT<TaskDtos>.Failure(Error.Failure("400", ""));
+            return ResultT<TaskDtos>.Failure(Error.Failure("400", "Failed to create task."));
         }
 
         public async Task<ResultT<TaskDtos>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -37,6 +56,7 @@ namespace GestionDeTareas.Core.Application.Service
             if (task != null)
             {
                var taskDto = _mapper.Map<TaskDtos>(task);
+
                return ResultT<TaskDtos>.Success(taskDto);
             }
 
@@ -75,6 +95,7 @@ namespace GestionDeTareas.Core.Application.Service
         public async Task<ResultT<IEnumerable<TaskDtos>>> GetlAllAsync(CancellationToken cancellationToken)
         {
             var taskItems = await _taskRepository.GetAllAsync(cancellationToken);
+
             if (!taskItems.Any())
             {
                 return ResultT<IEnumerable<TaskDtos>>.Failure(Error.Failure("400", "The list is empty"));
@@ -99,5 +120,44 @@ namespace GestionDeTareas.Core.Application.Service
 
             return ResultT<TaskDtos>.Failure(Error.NotFound("404", $"{id} not found"));
         }
+
+        public async Task<ResultT<IEnumerable<TaskDtos>>> FilterByDescriptionAsync(string description, CancellationToken cancellationToken)
+        {
+            var filterDescription = await _taskRepository.GetFilterAsync(x => x.Description == description, cancellationToken);
+            if (!filterDescription.Any())
+            {
+                return ResultT<IEnumerable<TaskDtos>>.Failure(Error.Failure("400", "The list is empty"));
+            }
+
+            var taskDto = filterDescription.Select(x => _mapper.Map<TaskDtos>(x));
+
+            return ResultT<IEnumerable<TaskDtos>>.Success(taskDto);
+        }
+        
+        public async Task<ResultT<TaskDayDto>> CalculateDayLeftAsync(Guid id, CancellationToken cancellationToken)
+        {
+            var task = await _taskRepository.GetByIdAsync(id, cancellationToken);
+
+            if (task != null)
+            {
+                var daysLeft = _taskHelper.CalculateDaysLeft(task);
+                TaskDayDto taskDayDto = new
+                (
+                    TaskId: task.Id,
+                    Description: task.Description,
+                    DuaDate: task.DuaDate,
+                    Status: task.Status,
+                    DayLeft: daysLeft,
+                    AdditionalData: task.AdditionalData
+                );
+
+                return ResultT<TaskDayDto>.Success(taskDayDto);
+
+            }
+
+            return ResultT<TaskDayDto>.Failure(Error.Failure("404", $"{id} not found"));
+
+        }
+
     }
 }
