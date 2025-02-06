@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using GestionDeTareas.Core.Application.DTos;
+using GestionDeTareas.Core.Application.Factories.HighPriority;
+using GestionDeTareas.Core.Application.Factories.ThreeDayTask;
 using GestionDeTareas.Core.Application.Helper;
 using GestionDeTareas.Core.Application.Interfaces.Repository;
 using GestionDeTareas.Core.Application.Interfaces.Service;
@@ -14,12 +16,93 @@ namespace GestionDeTareas.Core.Application.Service
         private readonly ITaskRepository _taskRepository;
         private readonly IMapper _mapper;
         private readonly TaskHelper _taskHelper;
-
-        public TaskService(ITaskRepository taskRepository, IMapper mapper, TaskHelper taskHelper)
+        private readonly HighPriorityFactory _factory;
+        private readonly ThreeDayTaskFactory _taskFactory; 
+ 
+        public TaskService(
+            ITaskRepository taskRepository, 
+            IMapper mapper, 
+            TaskHelper taskHelper, 
+            HighPriorityFactory factory,
+            ThreeDayTaskFactory taskFactory )
         {
             _taskRepository = taskRepository;
             _mapper = mapper;
             _taskHelper = taskHelper;
+            _factory = factory;
+            _taskFactory = taskFactory;
+        }
+
+        public async Task<ResultT<TaskDtos>> CreateHighPriorityTask(
+            string description,
+            CancellationToken cancellationToken)
+        {
+            var exists = await _taskRepository.ValidateAsync(x => x.Description == description);
+            if (!exists)
+            {
+                var task = _factory.CreateHighPriority();
+                task.SetDescription(description);
+
+                var taskItem = new TaskItem()
+                {
+                    Id = Guid.NewGuid(),
+                    Description = task.GetDescription(),
+                    DuaDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                    Status = Status.Pending,
+                    AdditionalData = 3
+                };
+
+                await _taskRepository.CreateAsync(taskItem,cancellationToken);
+                _taskHelper.SendNotification(taskItem);
+
+                TaskDtos dto = new
+                (
+                    Id: taskItem.Id,
+                    Description: taskItem.Description,
+                    DuaDate: taskItem.DuaDate,
+                    Status: taskItem.Status,
+                    AdditionalData: taskItem.AdditionalData
+                );
+
+                return ResultT<TaskDtos>.Success(dto);
+            }
+
+            return ResultT<TaskDtos>.Failure(Error.Failure("400", "Task description already exists"));
+        }
+
+        public async Task<ResultT<TaskDtos>> ThreeDaysTask(string description, CancellationToken cancellationToken)
+        {
+            var exists = await _taskRepository.ValidateAsync(x => x.Description == description);
+            if (!exists)
+            {
+
+                var taskDays = _taskFactory.CreateTaskThreeDays();
+                taskDays.SetDays(DateOnly.FromDateTime(DateTime.Now.AddDays(3)));
+
+                var taskItem = new TaskItem()
+                {
+                    Id = Guid.NewGuid(),
+                    Description = description,
+                    DuaDate = taskDays.GetDays(),
+                    Status = Status.Pending,
+                    AdditionalData = 1
+                };
+
+                await _taskRepository.CreateAsync(taskItem,cancellationToken);
+                _taskHelper.SendNotification(taskItem);
+
+                TaskDtos taskDto =  new
+                (
+                    Id: taskItem.Id,
+                    Description: taskItem.Description,
+                    DuaDate: taskDays.GetDays(),
+                    Status: taskItem.Status,
+                    AdditionalData: taskItem.AdditionalData
+                );
+                return ResultT<TaskDtos>.Success(taskDto);
+            }
+
+            return ResultT<TaskDtos>.Failure(Error.Failure("400", "Task description already exists"));
         }
 
         public async Task<ResultT<TaskDtos>> CreateAsync(CreateTaskDto createTaskDto, CancellationToken cancellationToken)

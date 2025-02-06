@@ -21,5 +21,9 @@ namespace GestionDeTareas.Core.Application.Interfaces.Service
         Task<ResultT<IEnumerable<TaskDtos>>> FilterByDescriptionAsync(string description, CancellationToken cancellationToken);
 
         Task<ResultT<TaskDayDto>> CalculateDayLeftAsync(Guid id, CancellationToken cancellationToken);
+
+        Task<ResultT<TaskDtos>> ThreeDaysTask(string description, CancellationToken cancellationToken);
+
+        Task<ResultT<TaskDtos>> CreateHighPriorityTask(string description, CancellationToken cancellationToken);
     }
 }
