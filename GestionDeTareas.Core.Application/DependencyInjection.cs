@@ -1,4 +1,7 @@
-﻿using GestionDeTareas.Core.Application.Helper;
+﻿using GestionDeTareas.Core.Application.Factories.HighPriority;
+using GestionDeTareas.Core.Application.Factories.ThreeDayTask;
+using GestionDeTareas.Core.Application.Helper;
+using GestionDeTareas.Core.Application.Interfaces.Factories;
 using GestionDeTareas.Core.Application.Interfaces.Service;
 using GestionDeTareas.Core.Application.Mapper;
 using GestionDeTareas.Core.Application.Service;
@@ -15,6 +18,10 @@ namespace GestionDeTareas.Core.Application
             #region Services
             service.AddScoped<ITaskService, TaskService>();
             service.AddScoped<TaskHelper>();
+            service.AddScoped<HighPriorityFactory, ConcreteHighPriorityFactory>();
+            service.AddScoped<IHighPriority, HighPriorityTask>();
+            service.AddScoped<IThreeDay, ThreeDayTask>();
+            service.AddScoped<ThreeDayTaskFactory,ConcreteThreeDayTaskFactory>();
             #endregion
 
             return service;
