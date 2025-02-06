@@ -1,10 +1,9 @@
-﻿using GestionDeTareas.Core.Application.Interfaces.Factories;
+﻿using GestionDeTareas.Core.Domain.Models;
 
 namespace GestionDeTareas.Core.Application.Factories.HighPriority
 {
-    //Factory
     public abstract class HighPriorityFactory
     {
-        public abstract IHighPriority CreateHighPriority();
+        public abstract TaskItem CreateHighPriorityTask(string description);
     }
 }

@@ -1,18 +1,21 @@
-﻿using GestionDeTareas.Core.Application.Interfaces.Factories;
+﻿using GestionDeTareas.Core.Domain.Enum;
+using GestionDeTareas.Core.Domain.Models;
 
 namespace GestionDeTareas.Core.Application.Factories.HighPriority
 {
-    //Concret Product
-    public class HighPriorityTask : IHighPriority
+
+    public class HighPriorityTask : HighPriorityFactory
     {
-        private string _description;
-
-        public void SetDescription(string description)
+        public override TaskItem CreateHighPriorityTask(string description)
         {
-            _description = description;
+            return new TaskItem()
+            {
+                Id = Guid.NewGuid(),
+                Description = description,
+                DuaDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                Status = Status.Pending,
+                AdditionalData = 3
+            };
         }
-
-        public string GetDescription() => _description;
-
     }
 }

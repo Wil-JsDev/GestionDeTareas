@@ -1,9 +1,9 @@
-﻿using GestionDeTareas.Core.Application.Interfaces.Factories;
+﻿using GestionDeTareas.Core.Domain.Models;
 
 namespace GestionDeTareas.Core.Application.Factories.ThreeDayTask
 {
     public abstract class ThreeDayTaskFactory
     {
-        public abstract IThreeDay CreateTaskThreeDays();
+        public abstract TaskItem CreateTaskThreeDays(string description);
     }
 }

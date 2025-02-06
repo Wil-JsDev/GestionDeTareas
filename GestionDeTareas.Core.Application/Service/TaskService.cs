@@ -16,15 +16,15 @@ namespace GestionDeTareas.Core.Application.Service
         private readonly ITaskRepository _taskRepository;
         private readonly IMapper _mapper;
         private readonly TaskHelper _taskHelper;
-        private readonly HighPriorityFactory _factory;
-        private readonly ThreeDayTaskFactory _taskFactory; 
+        private HighPriorityTask _factory;
+        private ThreeDayTask _taskFactory; 
  
         public TaskService(
             ITaskRepository taskRepository, 
             IMapper mapper, 
-            TaskHelper taskHelper, 
-            HighPriorityFactory factory,
-            ThreeDayTaskFactory taskFactory )
+            TaskHelper taskHelper,
+            HighPriorityTask factory,
+            ThreeDayTask taskFactory )
         {
             _taskRepository = taskRepository;
             _mapper = mapper;
@@ -40,19 +40,10 @@ namespace GestionDeTareas.Core.Application.Service
             var exists = await _taskRepository.ValidateAsync(x => x.Description == description);
             if (!exists)
             {
-                var task = _factory.CreateHighPriority();
-                task.SetDescription(description);
-
-                var taskItem = new TaskItem()
-                {
-                    Id = Guid.NewGuid(),
-                    Description = task.GetDescription(),
-                    DuaDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-                    Status = Status.Pending,
-                    AdditionalData = 3
-                };
-
+                var taskItem = _factory.CreateHighPriorityTask(description);
+                
                 await _taskRepository.CreateAsync(taskItem,cancellationToken);
+
                 _taskHelper.SendNotification(taskItem);
 
                 TaskDtos dto = new
@@ -75,19 +66,8 @@ namespace GestionDeTareas.Core.Application.Service
             var exists = await _taskRepository.ValidateAsync(x => x.Description == description);
             if (!exists)
             {
-
-                var taskDays = _taskFactory.CreateTaskThreeDays();
-                taskDays.SetDays(DateOnly.FromDateTime(DateTime.Now.AddDays(3)));
-
-                var taskItem = new TaskItem()
-                {
-                    Id = Guid.NewGuid(),
-                    Description = description,
-                    DuaDate = taskDays.GetDays(),
-                    Status = Status.Pending,
-                    AdditionalData = 1
-                };
-
+                var taskItem = _taskFactory.CreateTaskThreeDays(description);
+                
                 await _taskRepository.CreateAsync(taskItem,cancellationToken);
                 _taskHelper.SendNotification(taskItem);
 
@@ -95,7 +75,7 @@ namespace GestionDeTareas.Core.Application.Service
                 (
                     Id: taskItem.Id,
                     Description: taskItem.Description,
-                    DuaDate: taskDays.GetDays(),
+                    DuaDate: taskItem.DuaDate,
                     Status: taskItem.Status,
                     AdditionalData: taskItem.AdditionalData
                 );

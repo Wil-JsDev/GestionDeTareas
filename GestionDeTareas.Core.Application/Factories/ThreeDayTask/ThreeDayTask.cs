@@ -1,16 +1,20 @@
-﻿using GestionDeTareas.Core.Application.Interfaces.Factories;
+﻿using GestionDeTareas.Core.Domain.Enum;
+using GestionDeTareas.Core.Domain.Models;
 
 namespace GestionDeTareas.Core.Application.Factories.ThreeDayTask
 {
-    public class ThreeDayTask : IThreeDay
+    public class ThreeDayTask : ThreeDayTaskFactory
     {
-        private DateOnly _date;
-
-        public void SetDays(DateOnly date)
+        public override TaskItem CreateTaskThreeDays(string description)
         {
-            _date = date;
+            return new TaskItem
+            {
+                Id = Guid.NewGuid(),
+                Description = description,
+                DuaDate = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+                Status = Status.Pending,
+                AdditionalData = 3
+            };
         }
-
-        public DateOnly GetDays() => _date;
     }
 }
