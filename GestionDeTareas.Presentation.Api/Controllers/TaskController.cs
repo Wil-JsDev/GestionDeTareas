@@ -29,6 +29,31 @@ namespace GestionDeTareas.Presentation.Api.Controllers
 
         }
 
+        [HttpPost("high-priority")]
+        public async Task<IActionResult> CreateHighPriorityTask([FromBody] string description,CancellationToken cancellationToken)
+        {
+            var highPriorityTask = await _taskService.CreateHighPriorityTask(description,cancellationToken);
+            if (!highPriorityTask.IsSuccess)
+            {
+                return BadRequest(highPriorityTask.Error);
+            }
+
+            return Ok(highPriorityTask.Value);
+        }
+
+        [HttpPost("three-days")]
+        public async Task<IActionResult> CreateThreeDaysTask([FromBody] string description,CancellationToken cancellationToken)
+        {
+            var threeDaysTask = await _taskService.ThreeDaysTask(description,cancellationToken);
+            if (!threeDaysTask.IsSuccess)
+            {
+                return BadRequest(threeDaysTask.Error);
+            }
+
+            return Ok(threeDaysTask.Value);
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> GetAllAsync(CancellationToken cancelationToken)
         {
