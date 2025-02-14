@@ -4,7 +4,9 @@ using GestionDeTareas.Core.Application.Helper;
 using GestionDeTareas.Core.Application.Interfaces.Service;
 using GestionDeTareas.Core.Application.Mapper;
 using GestionDeTareas.Core.Application.Service;
+using GestionDeTareas.Core.Domain.Models;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections;
 
 namespace GestionDeTareas.Core.Application
 {
@@ -19,6 +21,7 @@ namespace GestionDeTareas.Core.Application
             service.AddScoped<TaskHelper>();
             service.AddScoped<HighPriorityTask>();
             service.AddScoped<ThreeDayTask>();
+            service.AddScoped<Queue<TaskItem>>();
             #endregion
 
             return service;
