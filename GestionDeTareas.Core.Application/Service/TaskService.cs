@@ -17,11 +17,12 @@ namespace GestionDeTareas.Core.Application.Service
         private readonly IMapper _mapper;
         private readonly TaskHelper _taskHelper;
         private HighPriorityTask _factory;
-        private ThreeDayTask _taskFactory; 
- 
+        private ThreeDayTask _taskFactory;
+        private readonly Queue<TaskItem> _queue = new Queue<TaskItem>();
+
         public TaskService(
-            ITaskRepository taskRepository, 
-            IMapper mapper, 
+            ITaskRepository taskRepository,
+            IMapper mapper,
             TaskHelper taskHelper,
             HighPriorityTask factory,
             ThreeDayTask taskFactory )
@@ -42,7 +43,12 @@ namespace GestionDeTareas.Core.Application.Service
             {
                 var taskItem = _factory.CreateHighPriorityTask(description);
                 
-                await _taskRepository.CreateAsync(taskItem,cancellationToken);
+                _queue.Enqueue(taskItem);
+
+                while (_queue.Count > 0)
+                {
+                    await _taskRepository.CreateAsync(_queue.Dequeue(), cancellationToken);
+                }
 
                 _taskHelper.SendNotification(taskItem);
 
@@ -67,8 +73,14 @@ namespace GestionDeTareas.Core.Application.Service
             if (!exists)
             {
                 var taskItem = _taskFactory.CreateTaskThreeDays(description);
-                
-                await _taskRepository.CreateAsync(taskItem,cancellationToken);
+
+                _queue.Enqueue(taskItem);
+
+                while (_queue.Count > 0)
+                {
+                    await _taskRepository.CreateAsync(_queue.Dequeue(), cancellationToken);
+                }
+
                 _taskHelper.SendNotification(taskItem);
 
                 TaskDtos taskDto =  new
@@ -100,13 +112,20 @@ namespace GestionDeTareas.Core.Application.Service
                 if (!isValid)
                 {
                     return ResultT<TaskDtos>.Failure(Error.Failure("400", "Task is null or description is empty."));
-                }
+                }   
+ 
+                _queue.Enqueue(task);
 
-                await _taskRepository.CreateAsync(task, cancellationToken);
+                while (_queue.Count > 0)
+                {
+                    await _taskRepository.CreateAsync(_queue.Dequeue(), cancellationToken);
+                }
 
                 _taskHelper.SendNotification(task);
 
-                var taskDto = _mapper.Map<TaskDtos>(task); 
+                
+                var taskDto = _mapper.Map<TaskDtos>(task);
+                
                 return ResultT<TaskDtos>.Success(taskDto);
             }
 
@@ -131,7 +150,13 @@ namespace GestionDeTareas.Core.Application.Service
             var taskItem = await _taskRepository.GetByIdAsync(id, cancellationToken);
             if (taskItem != null)
             {
-                await _taskRepository.DeleteAsync(taskItem, cancellationToken);
+                _queue.Enqueue(taskItem);
+
+                if (_queue.Count > 0)
+                {
+                    await _taskRepository.DeleteAsync(_queue.Dequeue(), cancellationToken);
+                } 
+
                 var taskDto = _mapper.Map<TaskDtos>(taskItem);
 
                 return ResultT<TaskDtos>.Success(taskDto);
@@ -174,8 +199,14 @@ namespace GestionDeTareas.Core.Application.Service
             if (task != null)
             {
                 task = _mapper.Map<UpdateTaskDtos, TaskItem>(updateTaskDtos, task);
-                await _taskRepository.UpdateAsync(task, cancellationToken);
-                
+
+                _queue.Enqueue(task);
+
+                while (_queue.Count > 0)
+                {
+                    await _taskRepository.UpdateAsync(_queue.Dequeue(), cancellationToken);
+                }
+
                 var taskDto = _mapper.Map<TaskDtos>(task);
 
                 return ResultT<TaskDtos>.Success(taskDto);
