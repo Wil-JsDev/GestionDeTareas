@@ -19,6 +19,7 @@ namespace GestionDeTareas.Core.Application.Service
         private HighPriorityTask _factory;
         private ThreeDayTask _taskFactory;
         private readonly Queue<TaskItem> _queue = new Queue<TaskItem>();
+        private Dictionary<Status, IEnumerable<TaskDtos>> _cache = new();
 
         public TaskService(
             ITaskRepository taskRepository,
@@ -169,15 +170,19 @@ namespace GestionDeTareas.Core.Application.Service
         public async Task<ResultT<IEnumerable<TaskDtos>>> FilterByStatus(Status status, CancellationToken cancellationToken)
         {
             var taskItems = await _taskRepository.GetFilterAsync(s => s.Status == status,cancellationToken);
+            if (_cache.TryGetValue(status, out var cachedTasks))
+            {
+                return ResultT<IEnumerable<TaskDtos>>.Success(cachedTasks);
+            }
+
             if (!taskItems.Any())
             {
                 return ResultT<IEnumerable<TaskDtos>>.Failure(Error.Failure("400","The list is empty"));
             }
 
             var taskDto = taskItems.Select(t => _mapper.Map<TaskDtos>(t));
-
+            _cache[status] = taskDto;
             return ResultT<IEnumerable<TaskDtos>>.Success(taskDto);
-
         }
 
         public async Task<ResultT<IEnumerable<TaskDtos>>> GetlAllAsync(CancellationToken cancellationToken)
