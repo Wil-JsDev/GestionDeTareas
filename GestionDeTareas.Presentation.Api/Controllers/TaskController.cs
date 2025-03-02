@@ -1,6 +1,7 @@
 ﻿using GestionDeTareas.Core.Application.DTos;
 using GestionDeTareas.Core.Application.Interfaces.Service;
 using GestionDeTareas.Core.Domain.Enum;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestionDeTareas.Presentation.Api.Controllers
@@ -17,6 +18,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateAsync([FromBody] CreateTaskDto createTaskDtos, CancellationToken cancellationToken)
         {
             var taskDto = await _taskService.CreateAsync(createTaskDtos, cancellationToken);            
@@ -30,6 +32,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
         }
 
         [HttpPost("high-priority")]
+        [Authorize]
         public async Task<IActionResult> CreateHighPriorityTask([FromBody] string description,CancellationToken cancellationToken)
         {
             var highPriorityTask = await _taskService.CreateHighPriorityTask(description,cancellationToken);
@@ -42,6 +45,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
         }
 
         [HttpPost("three-days")]
+        [Authorize]
         public async Task<IActionResult> CreateThreeDaysTask([FromBody] string description,CancellationToken cancellationToken)
         {
             var threeDaysTask = await _taskService.ThreeDaysTask(description,cancellationToken);
@@ -55,6 +59,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
 
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAllAsync(CancellationToken cancelationToken)
         {
             var taskItems = await _taskService.GetlAllAsync(cancelationToken);
@@ -67,6 +72,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
         }
 
         [HttpGet("filter/status/{status}")]
+        [Authorize]
         public async Task<IActionResult> FilterByStatusAsync([FromRoute] Status status, CancellationToken cancellationToken)
         {
             var filter = await _taskService.FilterByStatus(status, cancellationToken);
@@ -80,6 +86,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
         }
 
         [HttpGet("filter/description/{description}")]
+        [Authorize]
         public async Task<IActionResult> FilterByDescriptionAsync([FromRoute] string description,CancellationToken cancellationToken)
         {
             var filter = await _taskService.FilterByDescriptionAsync(description, cancellationToken);
@@ -92,6 +99,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken cancellationToken)
         {
             var task = await _taskService.GetByIdAsync(id, cancellationToken);
@@ -105,6 +113,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken cancellationToken)
         {
             var task = await _taskService.DeleteAsync(id, cancellationToken);
@@ -118,6 +127,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
         }
 
         [HttpPut]
+        [Authorize]
         public async Task<IActionResult> UpdateAsync([FromQuery] Guid id, [FromBody] UpdateTaskDtos updateTask, CancellationToken cancellationToken)
         {
             var task = await _taskService.UpdateAsync(id, updateTask, cancellationToken);
@@ -131,6 +141,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
         }
 
         [HttpGet("{id}/days-left")]
+        [Authorize]
         public async Task<IActionResult> GetCalculateDaysAsync([FromRoute] Guid id, CancellationToken cancellationToken)
         {
             var taskDay = await _taskService.CalculateDayLeftAsync(id, cancellationToken);

@@ -11,13 +11,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastru
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{F0DD8C65-E99B-4F8B-9463-1977B1F13F8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestionDeTareas.Core.Domain", "GestionDeTareas.Core.Domain\GestionDeTareas.Core.Domain.csproj", "{FFA6548E-7AEE-4C43-9ECD-EC3D7935B3A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestionDeTareas.Core.Domain", "GestionDeTareas.Core.Domain\GestionDeTareas.Core.Domain.csproj", "{FFA6548E-7AEE-4C43-9ECD-EC3D7935B3A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestionDeTareas.Core.Application", "GestionDeTareas.Core.Application\GestionDeTareas.Core.Application.csproj", "{364CF7C8-3EAF-4318-8D05-1B2833D04049}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestionDeTareas.Core.Application", "GestionDeTareas.Core.Application\GestionDeTareas.Core.Application.csproj", "{364CF7C8-3EAF-4318-8D05-1B2833D04049}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestionDeTareas.Infrastructure.Persistence", "GestionDeTareas.Infrastructure.Persistence\GestionDeTareas.Infrastructure.Persistence.csproj", "{79AE08F7-EE85-4526-98A9-430BEAD5ABDE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestionDeTareas.Infrastructure.Persistence", "GestionDeTareas.Infrastructure.Persistence\GestionDeTareas.Infrastructure.Persistence.csproj", "{79AE08F7-EE85-4526-98A9-430BEAD5ABDE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestionDeTareas.Presentation.Api", "GestionDeTareas.Presentation.Api\GestionDeTareas.Presentation.Api.csproj", "{0951DB14-5F32-4168-89CC-42FDEBF76B16}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestionDeTareas.Presentation.Api", "GestionDeTareas.Presentation.Api\GestionDeTareas.Presentation.Api.csproj", "{0951DB14-5F32-4168-89CC-42FDEBF76B16}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestionDeTareas.Infrastructure.Identity", "Trimly.Infrastructure.Identity\GestionDeTareas.Infrastructure.Identity.csproj", "{3AF54C84-8816-449F-9300-C38B841FAF52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{0951DB14-5F32-4168-89CC-42FDEBF76B16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0951DB14-5F32-4168-89CC-42FDEBF76B16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0951DB14-5F32-4168-89CC-42FDEBF76B16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AF54C84-8816-449F-9300-C38B841FAF52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AF54C84-8816-449F-9300-C38B841FAF52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AF54C84-8816-449F-9300-C38B841FAF52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AF54C84-8816-449F-9300-C38B841FAF52}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 		{364CF7C8-3EAF-4318-8D05-1B2833D04049} = {4F467D5D-F908-4724-BB9C-EE1CA658C60A}
 		{79AE08F7-EE85-4526-98A9-430BEAD5ABDE} = {B38892AA-2942-4264-ACF5-78A3502929DD}
 		{0951DB14-5F32-4168-89CC-42FDEBF76B16} = {F0DD8C65-E99B-4F8B-9463-1977B1F13F8B}
+		{3AF54C84-8816-449F-9300-C38B841FAF52} = {B38892AA-2942-4264-ACF5-78A3502929DD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CE16D02E-12D1-49C0-9B0B-4AD10286E37F}
