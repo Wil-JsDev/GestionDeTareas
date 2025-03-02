@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GestionDeTareas.Core.Application\GestionDeTareas.Core.Application.csproj" />
     <ProjectReference Include="..\GestionDeTareas.Infrastructure.Persistence\GestionDeTareas.Infrastructure.Persistence.csproj" />
+    <ProjectReference Include="..\Trimly.Infrastructure.Identity\GestionDeTareas.Infrastructure.Identity.csproj" />
   </ItemGroup>
 
 </Project>
