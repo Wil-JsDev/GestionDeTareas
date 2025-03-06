@@ -3,11 +3,13 @@ using GestionDeTareas.Core.Application.DTos;
 using GestionDeTareas.Core.Application.Factories.HighPriority;
 using GestionDeTareas.Core.Application.Factories.ThreeDayTask;
 using GestionDeTareas.Core.Application.Helper;
+using GestionDeTareas.Core.Application.Hub;
 using GestionDeTareas.Core.Application.Interfaces.Repository;
 using GestionDeTareas.Core.Application.Interfaces.Service;
 using GestionDeTareas.Core.Domain.Enum;
 using GestionDeTareas.Core.Domain.Models;
 using GestionDeTareas.Core.Domain.Utils;
+using Microsoft.AspNetCore.SignalR;
 
 namespace GestionDeTareas.Core.Application.Service
 {
@@ -20,19 +22,21 @@ namespace GestionDeTareas.Core.Application.Service
         private ThreeDayTask _taskFactory;
         private readonly Queue<TaskItem> _queue = new Queue<TaskItem>();
         private Dictionary<Status, IEnumerable<TaskDtos>> _cache = new();
-
+        private readonly IHubContext<NotificationHub> _hubContext;
         public TaskService(
             ITaskRepository taskRepository,
             IMapper mapper,
             TaskHelper taskHelper,
             HighPriorityTask factory,
-            ThreeDayTask taskFactory )
+            ThreeDayTask taskFactory,
+            IHubContext<NotificationHub> hubContext)
         {
             _taskRepository = taskRepository;
             _mapper = mapper;
             _taskHelper = taskHelper;
             _factory = factory;
             _taskFactory = taskFactory;
+            _hubContext = hubContext;
         }
 
         public async Task<ResultT<TaskDtos>> CreateHighPriorityTask(
@@ -61,7 +65,7 @@ namespace GestionDeTareas.Core.Application.Service
                     Status: taskItem.Status,
                     AdditionalData: taskItem.AdditionalData
                 );
-
+                await _hubContext.Clients.All.SendAsync("SendNotification", "Task high priority created successfully");
                 return ResultT<TaskDtos>.Success(dto);
             }
 
@@ -92,6 +96,9 @@ namespace GestionDeTareas.Core.Application.Service
                     Status: taskItem.Status,
                     AdditionalData: taskItem.AdditionalData
                 );
+                
+                await _hubContext.Clients.All.SendAsync("SendNotification", "Task three days created successfully");
+                
                 return ResultT<TaskDtos>.Success(taskDto);
             }
 
@@ -126,7 +133,7 @@ namespace GestionDeTareas.Core.Application.Service
 
                 
                 var taskDto = _mapper.Map<TaskDtos>(task);
-                
+                await _hubContext.Clients.All.SendAsync("SendNotification", "Task created successfully");
                 return ResultT<TaskDtos>.Success(taskDto);
             }
 
@@ -159,7 +166,9 @@ namespace GestionDeTareas.Core.Application.Service
                 } 
 
                 var taskDto = _mapper.Map<TaskDtos>(taskItem);
-
+                
+                await _hubContext.Clients.All.SendAsync("SendNotification", "Task delete successfully");
+                
                 return ResultT<TaskDtos>.Success(taskDto);
             }
 
@@ -213,7 +222,9 @@ namespace GestionDeTareas.Core.Application.Service
                 }
 
                 var taskDto = _mapper.Map<TaskDtos>(task);
-
+                
+                await _hubContext.Clients.All.SendAsync("SendNotification", "Task update successfully");
+                
                 return ResultT<TaskDtos>.Success(taskDto);
             }
 
