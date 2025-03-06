@@ -1,4 +1,5 @@
 using GestionDeTareas.Core.Application;
+using GestionDeTareas.Core.Application.Hub;
 using GestionDeTareas.Infrastructure.Identity.Models;
 using GestionDeTareas.Infrastructure.Identity.Seeds;
 using GestionDeTareas.Infrastructure.Persistence;
@@ -57,5 +58,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("SendNotification");
 
 app.Run();
