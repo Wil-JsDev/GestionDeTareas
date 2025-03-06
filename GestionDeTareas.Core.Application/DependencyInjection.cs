@@ -16,6 +16,8 @@ namespace GestionDeTareas.Core.Application
         {
             service.AddAutoMapper(typeof(MappingProfile));
 
+            service.AddSignalR();
+            
             #region Services
             service.AddScoped<ITaskService, TaskService>();
             service.AddScoped<TaskHelper>();
