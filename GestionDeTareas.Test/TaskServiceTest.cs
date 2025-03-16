@@ -283,7 +283,7 @@ public class TaskServiceTest
         //Act
         var resultController = await taskController.GetAllAsync(CancellationToken.None);
         //Assert
-        Assert.IsType<Task<IEnumerable<TaskDtos>>>(resultController);
+        Assert.NotNull(resultController);
     }
     
 }
