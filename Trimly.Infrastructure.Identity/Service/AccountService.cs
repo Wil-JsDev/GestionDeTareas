@@ -12,6 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using GestionDeTareas.Core.Application.DTos.Account;
 
 namespace GestionDeTareas.Infrastructure.Identity.Service
 {
@@ -42,7 +43,7 @@ namespace GestionDeTareas.Infrastructure.Identity.Service
 
             User user = new()
             {
-                FirstName = request.Username,
+                FirstName = request.FirstName,
                 LastName = request.LastName,
                 UserName = request.Username,
                 PhoneNumber = request.PhoneNumber,
@@ -113,6 +114,22 @@ namespace GestionDeTareas.Infrastructure.Identity.Service
             response.RefreshToken = refreshToken.Token;
 
             return response;
+        }
+
+        public async Task<IEnumerable<AccountDTos>> GetAllAsync()
+        {
+            var users = _userManager.Users.ToList();
+            IEnumerable<AccountDTos> usersList = users.Select(x => new AccountDTos
+            (
+                UserId: x.Id,
+                FirstName: x.FirstName,
+                LastName: x.LastName,
+                Email: x.Email,
+                Username: x.UserName,
+                PhoneNumber: x.PhoneNumber
+            ));
+            
+            return usersList;
         }
 
         #region Private Methods
