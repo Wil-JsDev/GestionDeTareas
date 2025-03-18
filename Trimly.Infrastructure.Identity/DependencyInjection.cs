@@ -64,7 +64,8 @@ namespace GestionDeTareas.Infrastructure.Identity
                         c.NoResult();
                         c.Response.StatusCode = 500;
                         c.Response.ContentType = "text/plain";
-                        return c.Response.WriteAsync(c.Exception.ToString());
+                        var result = JsonConvert.SerializeObject(new JwtResponse{HasError = true, Error = "An unexpected authentication error occurred"});
+                        return c.Response.WriteAsync(result);
                     },
                     OnChallenge = c =>
                     {

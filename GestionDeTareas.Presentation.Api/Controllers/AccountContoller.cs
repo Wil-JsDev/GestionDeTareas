@@ -9,19 +9,17 @@ namespace GestionDeTareas.Presentation.Api.Controllers
 {
     [ApiController]
     [Route("api/account")]
-    public class AccountContoller : ControllerBase
+    public class AccountContoller(IAccountService accountService) : ControllerBase
     {
-        private readonly IAccountService _accountService;
 
-        public AccountContoller(IAccountService accountService)
-        {
-            _accountService = accountService;
-        }
-
+        [HttpGet]
+        public async Task<IActionResult> GetAllAccounts() => 
+            Ok( await accountService.GetAllAsync());
+        
         [HttpPost("register-student")]
         public async Task<IActionResult> RegisterStudentAsync([FromBody] RegisterRequest registerRequest)
         {
-            var result = await _accountService.RegisterAccountAsync(registerRequest,Roles.Student.ToString().ToLower());
+            var result = await accountService.RegisterAccountAsync(registerRequest,Roles.Student.ToString().ToLower());
             if(!result.IsSuccess)
                 return BadRequest(result.ErrorMessage);
 
@@ -31,7 +29,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
         [HttpPost("register-admin")]
         public async Task<IActionResult> RegisterAdminAsync([FromBody] RegisterRequest registerRequest)
         {
-            var result = await _accountService.RegisterAccountAsync(registerRequest, Roles.Admin.ToString().ToLower());
+            var result = await accountService.RegisterAccountAsync(registerRequest, Roles.Admin.ToString().ToLower());
             if (!result.IsSuccess)
                 return BadRequest(result.ErrorMessage);
 
@@ -41,7 +39,7 @@ namespace GestionDeTareas.Presentation.Api.Controllers
         [HttpPost("authenticate")]
         public async Task<IActionResult> AuthenticateAsync([FromBody] AuthenticateRequest authenticate)
         {
-            var request = await _accountService.AuthenticateAsync(authenticate);
+            var request = await accountService.AuthenticateAsync(authenticate);
             return request.StatusCodes switch
             {
                 404 => NotFound(ApiResponse<string>.ErrorResponse($" Email {request.Email} not found")),

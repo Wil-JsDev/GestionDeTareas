@@ -1,4 +1,6 @@
 ﻿
+using System.Text.Json.Serialization;
+
 namespace GestionDeTareas.Core.Application.DTos.Account.Authenticate
 {
     public sealed class AuthenticateResponse
@@ -13,6 +15,7 @@ namespace GestionDeTareas.Core.Application.DTos.Account.Authenticate
         public int StatusCodes { get; set; }
         public string? JWTToken { get; set; }
         public string? PhoneNumber { get; set; }
+        [JsonIgnore]
         public string? RefreshToken { get; set; }
     }
 }
